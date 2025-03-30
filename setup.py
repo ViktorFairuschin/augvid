@@ -10,5 +10,5 @@ setup(
     license='MIT Licence',
     author='Viktor Fairuschin',
     author_email='',
-    description='A collection of video augmentation tools based on Keras.'
+    description='A collection of video augmentation layers.'
 )

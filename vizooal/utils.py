@@ -8,6 +8,8 @@ import os
 import typing
 
 import cv2
+import numpy as np
+
 from decord import VideoReader, cpu
 
 
@@ -15,20 +17,25 @@ def load_video(
         filepath: typing.Union[str, os.PathLike],
         height: int = -1,
         width: int = -1,
-        num_frames: int = -1
-):
+) -> np.ndarray:
+    """
+    Loads a video.
+
+    :param filepath: Path to the video.
+    :param height: Desired output height of the video, unchanged if -1 is specified.
+    :param width: Desired output width of the video, unchanged if -1 is specified.
+    """
     if not os.path.isfile(filepath):
         raise FileNotFoundError(filepath)
 
     vr = VideoReader(filepath, height=height, width=width, num_threads=-1, ctx=cpu(0))
-
-    if num_frames == -1:
-        return vr[:].asnumpy()
-
-    return vr.get_batch(list(range(num_frames))).asnumpy()
+    return vr[:].asnumpy()
 
 
-def show_video(video):
+def show_video(video: np.ndarray) -> None:
+    """
+    Shows a video.
+    """
     cv2.destroyAllWindows()
 
     for frame in video:

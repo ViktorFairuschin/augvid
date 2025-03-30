@@ -5,227 +5,155 @@
 
 
 import keras
+import tensorflow as tf
 
-from vizooal.ops import *
+
+from common import adjust_video
 
 
 class BaseAugmentationLayer(keras.layers.Layer):
     """
-    Base class for augmentation layers.
+    Base class for video augmentation layers.
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.input_spec = keras.layers.InputSpec(ndim=5, axes={4: 3})  # removed dtype=tf.uint8
+        self.input_spec = keras.layers.InputSpec(ndim=5, axes={4: 3})
 
 
 class RandomVideoBrightness(BaseAugmentationLayer):
     """
-    Apply random brightness adjustment to video.
+    Adjusts the brightness of videos by a random factor.
 
-    Expects inputs to be in [0, 255] range.
-
-    :param max_delta: Adjustment strength, must be non-negative.
-    :param p: Probability of adjustment, must be in [0, 1] range.
+    :param max_delta: This parameter controls the maximum relative
+        change in brightness (must be non-negative).
     """
 
-    def __init__(self, max_delta: float = 0.1, p: float = 1.0, **kwargs):
+    def __init__(self, max_delta: float, **kwargs):
         super().__init__(**kwargs)
         self.max_delta = max_delta
-        self.p = p
 
-    def call(self, inputs, training=False, **kwargs):
+    def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, random_brightness, max_delta=self.max_delta)
+            fn = lambda x: tf.image.random_brightness(x, max_delta=self.max_delta)
             return tf.map_fn(fn, video)
 
         if training:
-            outputs = random_apply(adjust, inputs, p=self.p)
+            outputs = adjust(inputs)
             outputs.set_shape(inputs.shape)
             return outputs
 
         return inputs
-
-    def get_config(self):
-        config = super().get_config()
-        config.update({
-            "max_delta": self.max_delta,
-            "p": self.p,
-        })
-        return config
 
 
 class RandomVideoContrast(BaseAugmentationLayer):
     """
-    Apply random contrast adjustment to video.
+    Adjusts the contrast of videos by a random factor.
 
-    Expects inputs to be in [0, 255] range.
-
-    :param lower: Lower bound for adjustment strength, must be non-negative.
-    :param upper: Upper bound for adjustment strength, must be non-negative.
-    :param p: Probability of adjustment, must be in [0, 1] range.
+    :param lower: Lower bound for the random contrast factor.
+    :param upper: Upper bound for the random contrast factor.
     """
 
-    def __init__(self, lower: float = 0.2, upper: float = 2.0, p: float = 1.0, **kwargs):
+    def __init__(self, lower: float, upper: float, **kwargs):
         super().__init__(**kwargs)
         self.lower = lower
         self.upper = upper
-        self.p = p
 
-    def call(self, inputs, training=False, **kwargs):
+    def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, random_contrast, lower=self.lower, upper=self.upper)
+            fn = lambda x: tf.image.random_contrast(x, lower=self.lower, upper=self.upper)
             return tf.map_fn(fn, video)
 
         if training:
-            outputs = random_apply(adjust, inputs, p=self.p)
+            outputs = adjust(inputs)
             outputs.set_shape(inputs.shape)
             return outputs
 
         return inputs
 
-    def get_config(self):
-        config = super().get_config()
-        config.update({
-            "lower": self.lower,
-            "upper": self.upper,
-            "p": self.p,
-        })
-        return config
 
-
-class RandomVideoHue(BaseAugmentationLayer):
+class RandomVideoHue(keras.Layer):
     """
-    Apply random hue adjustment to video.
+    Adjusts the hue of RGB videos by a random factor.
 
-    Expects inputs to be in [0, 255] range.
-
-    :param max_delta: Adjustment strength, must be non-negative.
-    :param p: Probability of adjustment, must be in [0, 1] range.
+    :param max_delta: The maximum value for the random delta.
     """
 
-    def __init__(self, max_delta: float = 0.3, p: float = 1.0, **kwargs):
+    def __init__(self, max_delta: float, **kwargs):
         super().__init__(**kwargs)
         self.max_delta = max_delta
-        self.p = p
 
-    def call(self, inputs, training=False, **kwargs):
+    def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, random_hue, max_delta=self.max_delta)
+            fn = lambda x: tf.image.random_hue(x, max_delta=self.max_delta)
             return tf.map_fn(fn, video)
 
         if training:
-            outputs = random_apply(adjust, inputs, p=self.p)
+            outputs = adjust(inputs)
             outputs.set_shape(inputs.shape)
             return outputs
 
         return inputs
-
-    def get_config(self):
-        config = super().get_config()
-        config.update({
-            "max_delta": self.max_delta,
-            "p": self.p,
-        })
-        return config
 
 
 class RandomVideoSaturation(BaseAugmentationLayer):
     """
-    Apply random saturation adjustment to video.
+    Adjusts the saturation of videos by a random factor.
 
-    Expects inputs to be in [0, 255] range.
-
-    :param lower: Lower bound for adjustment strength, must be non-negative.
-    :param upper: Upper bound for adjustment strength, must be non-negative.
-    :param p: Probability of adjustment, must be in [0, 1] range.
+    :param lower: Lower bound for the random saturation factor.
+    :param upper: Upper bound for the random saturation factor.
     """
 
-    def __init__(self, lower: float = 0.0, upper: float = 3.0, p: float = 1.0, **kwargs):
+    def __init__(self, lower: float, upper: float,  **kwargs):
         super().__init__(**kwargs)
         self.lower = lower
         self.upper = upper
-        self.p = p
 
-    def call(self, inputs, training=False, **kwargs):
+    def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, random_saturation, lower=self.lower, upper=self.upper)
+            fn = lambda x: tf.image.random_saturation(x, lower=self.lower, upper=self.upper)
             return tf.map_fn(fn, video)
 
         if training:
-            outputs = random_apply(adjust, inputs, p=self.p)
+            outputs = adjust(inputs)
             outputs.set_shape(inputs.shape)
             return outputs
 
         return inputs
 
-    def get_config(self):
-        config = super().get_config()
-        config.update({
-            "lower": self.lower,
-            "upper": self.upper,
-            "p": self.p,
-        })
-        return config
 
-
-class RandomHorizontalVideoFlip(BaseAugmentationLayer):
+class RandomHorizontalVideoFlip(keras.Layer):
     """
-    Apply random horizontal flip to video.
-
-    :param p: Probability of adjustment, must be in [0, 1] range.
+    Randomly flips videos horizontally.
     """
 
-    def __init__(self, p: float = 0.5, **kwargs):
-        super().__init__(**kwargs)
-        self.p = p
-
-    def call(self, inputs, training=False, **kwargs):
+    def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, random_flip_left_right)
+            fn = lambda x: adjust_video(x, tf.image.random_flip_left_right)
             return tf.map_fn(fn, video)
 
         if training:
-            outputs = random_apply(adjust, inputs, p=self.p)
+            outputs = adjust(inputs)
             outputs.set_shape(inputs.shape)
             return outputs
 
         return inputs
-
-    def get_config(self):
-        config = super().get_config()
-        config.update({
-            "p": self.p,
-        })
-        return config
 
 
 class RandomVerticalVideoFlip(BaseAugmentationLayer):
     """
-    Apply random vertical flip to video.
-
-    :param p: Probability of adjustment, must be in [0, 1] range.
+    Randomly flips videos vertically.
     """
 
-    def __init__(self, p: float = 0.5, **kwargs):
-        super().__init__(**kwargs)
-        self.p = p
-
-    def call(self, inputs, training=False, **kwargs):
+    def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, random_flip_up_down)
+            fn = lambda x: adjust_video(x, tf.image.random_flip_up_down)
             return tf.map_fn(fn, video)
 
         if training:
-            outputs = random_apply(adjust, inputs, p=self.p)
+            outputs = adjust(inputs)
             outputs.set_shape(inputs.shape)
             return outputs
 
         return inputs
 
-    def get_config(self):
-        config = super().get_config()
-        config.update({
-            "p": self.p,
-        })
-        return config
