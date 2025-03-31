@@ -4,8 +4,8 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from vizooal.version import __version__
-from vizooal.layers import (
+from augvid.version import __version__
+from augvid.layers import (
     RandomVideoBrightness,
     RandomVideoContrast,
     RandomVideoHue,

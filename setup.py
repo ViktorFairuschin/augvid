@@ -1,14 +1,26 @@
-from distutils.core import setup
-from vizooal import __version__
-
+from setuptools import setup, find_packages
+from augvid import __version__
 
 setup(
-    name='vizooal',
+    name='augvid',
     version=__version__,
-    packages=['vizooal'],
-    url='https://github.com/ViktorFairuschin/vizooal.git',
-    license='MIT Licence',
+    description='A collection of video augmentation layers',
+    # long_description=long_description,
+    # long_description_content_type='text/markdown',
+    url='https://github.com/ViktorFairuschin/augvid',
     author='Viktor Fairuschin',
-    author_email='',
-    description='A collection of video augmentation layers.'
+    # author_email='author@example.com',
+    packages=find_packages(where='augvid'),
+    python_requires='>=3.7, <4',
+    install_requires=[
+        'tensorflow',
+        'keras',
+        'numpy',
+    ],
+    extras_require={
+        'dev': [
+            'decord',
+            'opencv-python',
+        ],
+    },
 )

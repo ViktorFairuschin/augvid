@@ -4,21 +4,27 @@
 # LICENSE file in the root directory of this source tree.
 
 
+import typing
 import keras
 import tensorflow as tf
 
 
-from common import adjust_video
-
-
 class BaseAugmentationLayer(keras.layers.Layer):
     """
-    Base class for video augmentation layers.
+    Base class for video augmentation layer.
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.input_spec = keras.layers.InputSpec(ndim=5, axes={4: 3})
+
+    @staticmethod
+    def apply_to_video(video: tf.Tensor, func: typing.Callable, **kwargs) -> tf.Tensor:
+        """ Applies image op `func` to video. """
+        t, h, w, c = video.shape.as_list()
+
+        video = func(tf.reshape(video, [t * h, w, c]), **kwargs)
+        return tf.reshape(video, [t, h, w, c])
 
 
 class RandomVideoBrightness(BaseAugmentationLayer):
@@ -72,7 +78,7 @@ class RandomVideoContrast(BaseAugmentationLayer):
         return inputs
 
 
-class RandomVideoHue(keras.Layer):
+class RandomVideoHue(BaseAugmentationLayer):
     """
     Adjusts the hue of RGB videos by a random factor.
 
@@ -122,14 +128,14 @@ class RandomVideoSaturation(BaseAugmentationLayer):
         return inputs
 
 
-class RandomHorizontalVideoFlip(keras.Layer):
+class RandomHorizontalVideoFlip(BaseAugmentationLayer):
     """
     Randomly flips videos horizontally.
     """
 
     def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, tf.image.random_flip_left_right)
+            fn = lambda x: self.apply_to_video(x, tf.image.random_flip_left_right)
             return tf.map_fn(fn, video)
 
         if training:
@@ -147,7 +153,7 @@ class RandomVerticalVideoFlip(BaseAugmentationLayer):
 
     def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: adjust_video(x, tf.image.random_flip_up_down)
+            fn = lambda x: self.apply_to_video(x, tf.image.random_flip_up_down)
             return tf.map_fn(fn, video)
 
         if training:
