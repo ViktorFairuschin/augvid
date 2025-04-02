@@ -4,7 +4,8 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from augvid.version import __version__
+__version__ = '0.0.1'
+
 from augvid.layers import (
     RandomVideoBrightness,
     RandomVideoContrast,
@@ -13,3 +14,4 @@ from augvid.layers import (
     RandomHorizontalVideoFlip,
     RandomVerticalVideoFlip
 )
+
