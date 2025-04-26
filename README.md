@@ -2,7 +2,7 @@
 
 **AugVid** is a collection of augmentation layers for videos inspired by the corresponding image preprocessing layers from `tf.keras`. 
 
-<video loop src="https://github.com/user-attachments/assets/703b7934-4f37-4be3-8976-f38d41262bac"> video </video>
+<video src="https://github.com/user-attachments/assets/703b7934-4f37-4be3-8976-f38d41262bac"> demo </video>
 
 ## Installation
 
@@ -26,3 +26,16 @@ model = keras.Sequential([
 ])
 ```
 
+## Demo
+
+To generate demo video, first install the required dependencies:
+
+```bash
+pip install 'augvid[dev]'
+```
+
+Then run:
+
+```bash
+python demo.py --video <PATH_TO_VIDEO>
+```
