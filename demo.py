@@ -7,6 +7,7 @@
 import argparse
 
 import cv2
+import keras
 import numpy as np
 
 from decord import VideoReader, cpu
@@ -17,7 +18,8 @@ from augvid import (
     RandomVideoHue,
     RandomVideoSaturation,
     RandomHorizontalVideoFlip,
-    RandomVerticalVideoFlip
+    RandomVerticalVideoFlip,
+    RandomGrayscale, RandomBlur,
 )
 
 
@@ -32,12 +34,15 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args: argparse.Namespace):
     layers = [
+        keras.layers.Identity(),
+        RandomVerticalVideoFlip(),
+        RandomHorizontalVideoFlip(),
+        RandomGrayscale(),
+        RandomBlur(max_factor=10.0, filter_size=5),
         RandomVideoBrightness(max_delta=0.3),
         RandomVideoContrast(lower=0.5, upper=1.5),
         RandomVideoHue(max_delta=0.2),
-        RandomVideoSaturation(lower=0.5, upper=1.5),
-        RandomVerticalVideoFlip(),
-        RandomHorizontalVideoFlip(),
+        RandomVideoSaturation(lower=1.0, upper=2.5),
     ]
 
     reader = VideoReader(args.video, height=HEIGHT, width=WIDTH, num_threads=-1, ctx=cpu(0))

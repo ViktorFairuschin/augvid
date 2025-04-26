@@ -12,6 +12,8 @@ from augvid.layers import (
     RandomVideoHue,
     RandomVideoSaturation,
     RandomHorizontalVideoFlip,
-    RandomVerticalVideoFlip
+    RandomVerticalVideoFlip,
+    RandomGrayscale,
+    RandomBlur
 )
 

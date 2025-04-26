@@ -8,6 +8,8 @@ import typing
 import keras
 import tensorflow as tf
 
+from .common import random_apply
+
 
 class BaseAugmentationLayer(keras.layers.Layer):
     """
@@ -19,7 +21,7 @@ class BaseAugmentationLayer(keras.layers.Layer):
         self.input_spec = keras.layers.InputSpec(ndim=5, axes={4: 3})
 
     @staticmethod
-    def apply_to_video(video: tf.Tensor, func: typing.Callable, **kwargs) -> tf.Tensor:
+    def _apply_to_video(video: tf.Tensor, func: typing.Callable, **kwargs) -> tf.Tensor:
         """ Applies image op `func` to video. """
         t, h, w, c = video.shape.as_list()
 
@@ -135,7 +137,7 @@ class RandomHorizontalVideoFlip(BaseAugmentationLayer):
 
     def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: self.apply_to_video(x, tf.image.random_flip_left_right)
+            fn = lambda x: self._apply_to_video(x, tf.image.random_flip_left_right)
             return tf.map_fn(fn, video)
 
         if training:
@@ -153,7 +155,7 @@ class RandomVerticalVideoFlip(BaseAugmentationLayer):
 
     def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: self.apply_to_video(x, tf.image.random_flip_up_down)
+            fn = lambda x: self._apply_to_video(x, tf.image.random_flip_up_down)
             return tf.map_fn(fn, video)
 
         if training:
@@ -162,4 +164,79 @@ class RandomVerticalVideoFlip(BaseAugmentationLayer):
             return outputs
 
         return inputs
+
+
+class RandomGrayscale(BaseAugmentationLayer):
+    """
+    Randomly converts videos to grayscale.
+    """
+
+    def call(self, inputs, training=False):
+        def adjust(video):
+            fn = lambda x: random_apply(self._to_grayscale, x, p=0.5)
+            return tf.map_fn(fn, video)
+
+        if training:
+            outputs = adjust(inputs)
+            outputs.set_shape(inputs.shape)
+            return outputs
+
+        return inputs
+
+    @staticmethod
+    def _to_grayscale(video: tf.Tensor) -> tf.Tensor:
+        """ Applies grayscale conversion to video. """
+        video = tf.image.rgb_to_grayscale(video)
+        # video = tf.tile(video, [1, 1, 1, 3])
+        video = tf.image.grayscale_to_rgb(video)
+        return video
+
+
+class RandomBlur(BaseAugmentationLayer):
+    """
+    Randomly applies Gaussian blur videos to videos.
+
+    :param max_factor: Controls the extent to which the video is blurred.
+    :param kernel_size: The size of the blur kernel.
+    """
+
+    def __init__(self, max_factor: float, filter_size: int, **kwargs):
+        super().__init__(**kwargs)
+        self.max_factor = max_factor
+        self.filter_size = filter_size
+
+    def call(self, inputs, training=False):
+        def adjust(video):
+            fn = lambda x: random_apply(self._apply_filter, x, p=0.5)
+            return tf.map_fn(fn, video)
+
+        if training:
+            outputs = adjust(inputs)
+            outputs.set_shape(inputs.shape)
+            return outputs
+
+        return inputs
+
+    def _apply_filter(self, video: tf.Tensor) -> tf.Tensor:
+        """ Applies convolution filter to video. """
+        dtype = video.dtype
+        video = tf.cast(video, dtype=tf.float32)
+
+        factor = tf.random.uniform(shape=(), minval=0, maxval=self.max_factor)
+        blur_h = self._get_filter(factor=factor, filter_size=self.filter_size)
+        blur_v = self._get_filter(factor=factor, filter_size=self.filter_size)
+
+        blurred = tf.nn.depthwise_conv2d(video, blur_h, strides=[1, 1, 1, 1], padding='SAME')
+        blurred = tf.nn.depthwise_conv2d(blurred, blur_v, strides=[1, 1, 1, 1], padding='SAME')
+        return tf.cast(blurred, dtype=dtype)
+
+    @staticmethod
+    def _get_filter(factor, filter_size):
+        """ Creates convolution filter. """
+        x = tf.cast(tf.range(- filter_size // 2 + 1, filter_size // 2 + 1), dtype=tf.float32)
+        blur_filter = tf.exp(-tf.pow(x, 2.0) / (2.0 * tf.pow(tf.cast(factor, dtype=tf.float32), 2.0)))
+        blur_filter /= tf.reduce_sum(blur_filter)
+        blur_filter = tf.reshape(blur_filter, [1, filter_size, 1, 1])
+        blur_filter = tf.cast(tf.tile(blur_filter, [1, 1, 3, 1]), dtype=tf.float32)
+        return blur_filter
 
