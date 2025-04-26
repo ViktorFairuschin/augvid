@@ -1,6 +1,6 @@
 # AugVid
 
-**AugVid** is a collection of augmentation layers for videos inspired by the corresponding image preprocessing layers from `tf.keras`. 
+**AugVid** is a collection of augmentation layers for videos, inspired by the corresponding image preprocessing layers from `tf.keras`. 
 
 <video src="https://github.com/user-attachments/assets/6ca99954-b8c5-4850-93ec-c30ecc640913"> demo </video>
 
