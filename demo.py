@@ -5,9 +5,9 @@
 
 
 import argparse
+import itertools
 
 import cv2
-import imageio
 import numpy as np
 
 from decord import VideoReader, cpu
@@ -22,7 +22,7 @@ from augvid import (
 )
 
 
-HEIGHT, WIDTH, NUM_FRAMES = 480, 640, 10
+HEIGHT, WIDTH, NUM_FRAMES = 480, 640, 30
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -32,9 +32,6 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 def main(args: argparse.Namespace):
-    vr = VideoReader(args.video, height=HEIGHT, width=WIDTH, num_threads=-1, ctx=cpu(0))
-    video = vr.get_batch(indices=range(NUM_FRAMES)).asnumpy()
-
     layers = [
         RandomVideoBrightness(max_delta=0.3),
         RandomVideoContrast(lower=0.5, upper=1.5),
@@ -44,19 +41,26 @@ def main(args: argparse.Namespace):
         RandomHorizontalVideoFlip(),
     ]
 
-    frames = []
-    for layer in layers:
-        aug_video = layer(np.expand_dims(video, axis=0), training=True)
+    vr = VideoReader(args.video, height=HEIGHT, width=WIDTH, num_threads=-1, ctx=cpu(0))
+    video = vr.get_batch(indices=range(NUM_FRAMES * len(layers))).asnumpy()
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    writer = cv2.VideoWriter('assets/demo.mp4', fourcc, 30, (WIDTH, HEIGHT))
+
+    for i, layer in enumerate(layers):
+        aug_video = video[i * 30:(i + 1) * 30]
+        aug_video = np.expand_dims(aug_video, axis=0)
+        aug_video = layer(aug_video, training=True)
         aug_video = aug_video.numpy().astype(np.uint8)[0]
-        frames.extend(aug_video)
 
         for frame in aug_video:
-            cv2.imshow('video', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            writer.write(frame)
+            cv2.imshow('video', frame)
             cv2.waitKey(1)
 
     cv2.destroyAllWindows()
-
-    # imageio.mimsave('assets/demo.gif', frames)
+    writer.release()
 
 
 if __name__ == "__main__":

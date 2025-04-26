@@ -24,7 +24,6 @@ Repository = "https://github.com/ViktorFairuschin/augvid"
 [project.optional-dependencies]
 dev = [
     "opencv-python",
-    "imageio",
     "matplotlib",
     "decord; platform_system != 'Darwin'",
     "eva-decord; platform_system == 'Darwin'"
