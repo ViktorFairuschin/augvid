@@ -1,5 +1,7 @@
 # AugVid
 
+<img src="assets/demo.gif" width="640" />
+
 **AugVid** is a collection of augmentation layers for videos inspired by the corresponding image preprocessing layers from `tf.keras`. 
 
 ## Installation
