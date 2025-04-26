@@ -1,10 +1,6 @@
 # AugVid
 
-<video width="640" controls>
-  <source src="assets/demo.mp4" type="video/mp4">
-</video>
-
-<video loop src="assets/demo.mp4"> video </video>
+<video src="assets/demo.mp4" width="320" height="240" controls></video>
 
 **AugVid** is a collection of augmentation layers for videos inspired by the corresponding image preprocessing layers from `tf.keras`. 
 
