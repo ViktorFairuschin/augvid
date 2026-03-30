@@ -4,14 +4,20 @@
 # LICENSE file in the root directory of this source tree.
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
-from augvid.layers import (
+from layers.color import (
     RandomVideoBrightness,
     RandomVideoContrast,
     RandomVideoHue,
     RandomVideoSaturation,
+    RandomGrayscale
+)
+
+from layers.affine import (
     RandomHorizontalVideoFlip,
     RandomVerticalVideoFlip
 )
+
+from layers.blur import RandomBlur
 

@@ -4,27 +4,10 @@
 # LICENSE file in the root directory of this source tree.
 
 
-import typing
-import keras
 import tensorflow as tf
 
-
-class BaseAugmentationLayer(keras.layers.Layer):
-    """
-    Base class for video augmentation layer.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.input_spec = keras.layers.InputSpec(ndim=5, axes={4: 3})
-
-    @staticmethod
-    def apply_to_video(video: tf.Tensor, func: typing.Callable, **kwargs) -> tf.Tensor:
-        """ Applies image op `func` to video. """
-        t, h, w, c = video.shape.as_list()
-
-        video = func(tf.reshape(video, [t * h, w, c]), **kwargs)
-        return tf.reshape(video, [t, h, w, c])
+from .base import BaseAugmentationLayer
+from ..ops import random_apply
 
 
 class RandomVideoBrightness(BaseAugmentationLayer):
@@ -128,14 +111,12 @@ class RandomVideoSaturation(BaseAugmentationLayer):
         return inputs
 
 
-class RandomHorizontalVideoFlip(BaseAugmentationLayer):
-    """
-    Randomly flips videos horizontally.
-    """
+class RandomGrayscale(BaseAugmentationLayer):
+    """ Randomly converts videos to grayscale. """
 
     def call(self, inputs, training=False):
         def adjust(video):
-            fn = lambda x: self.apply_to_video(x, tf.image.random_flip_left_right)
+            fn = lambda x: random_apply(self._to_grayscale, x, p=0.5)
             return tf.map_fn(fn, video)
 
         if training:
@@ -145,21 +126,11 @@ class RandomHorizontalVideoFlip(BaseAugmentationLayer):
 
         return inputs
 
-
-class RandomVerticalVideoFlip(BaseAugmentationLayer):
-    """
-    Randomly flips videos vertically.
-    """
-
-    def call(self, inputs, training=False):
-        def adjust(video):
-            fn = lambda x: self.apply_to_video(x, tf.image.random_flip_up_down)
-            return tf.map_fn(fn, video)
-
-        if training:
-            outputs = adjust(inputs)
-            outputs.set_shape(inputs.shape)
-            return outputs
-
-        return inputs
+    @staticmethod
+    def _to_grayscale(video: tf.Tensor) -> tf.Tensor:
+        """ Applies grayscale conversion to video. """
+        video = tf.image.rgb_to_grayscale(video)
+        # video = tf.tile(video, [1, 1, 1, 3])
+        video = tf.image.grayscale_to_rgb(video)
+        return video
 

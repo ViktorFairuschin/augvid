@@ -1,6 +1,9 @@
 # AugVid
 
-**AugVid** is a collection of augmentation layers for videos inspired by the corresponding image preprocessing layers from `tf.keras`. 
+**AugVid** is a collection of augmentation layers for videos, inspired by the corresponding image preprocessing layers from `tf.keras`. 
+
+<video src="https://github.com/user-attachments/assets/6ca99954-b8c5-4850-93ec-c30ecc640913"> demo </video>
+
 
 ## Installation
 
@@ -13,14 +16,27 @@ pip install augvid
 The augmentation layers can be added during the model construction:
 
 ```python
-import keras
+import tensorflow as tf
 from augvid import RandomVideoBrightness, RandomHorizontalVideoFlip
 
 
-model = keras.Sequential([
+model = tf.keras.Sequential([
     RandomVideoBrightness(max_delta=0.1),
     RandomHorizontalVideoFlip(),
     # add more layers here
 ])
 ```
 
+## Demo
+
+To generate demo video, first install the required dependencies:
+
+```bash
+pip install 'augvid[dev]'
+```
+
+Then run:
+
+```bash
+python demo.py --video <PATH_TO_VIDEO>
+```
