@@ -6,7 +6,7 @@
 
 __version__ = '0.0.3'
 
-from layers.color import (
+from .layers.color import (
     RandomVideoBrightness,
     RandomVideoContrast,
     RandomVideoHue,
@@ -14,10 +14,10 @@ from layers.color import (
     RandomGrayscale
 )
 
-from layers.affine import (
+from .layers.affine import (
     RandomHorizontalVideoFlip,
     RandomVerticalVideoFlip
 )
 
-from layers.blur import RandomBlur
+from .layers.blur import RandomBlur
 
