@@ -6,14 +6,18 @@
 
 __version__ = '0.0.2'
 
-from augvid.layers import (
+from layers.color import (
     RandomVideoBrightness,
     RandomVideoContrast,
     RandomVideoHue,
     RandomVideoSaturation,
-    RandomHorizontalVideoFlip,
-    RandomVerticalVideoFlip,
-    RandomGrayscale,
-    RandomBlur
+    RandomGrayscale
 )
+
+from layers.affine import (
+    RandomHorizontalVideoFlip,
+    RandomVerticalVideoFlip
+)
+
+from layers.blur import RandomBlur
 

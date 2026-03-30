@@ -4,15 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "augvid"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 description="A collection of video augmentation layers"
 license = "MIT"
 dynamic = ["version", "readme"]
 keywords = ["augmentation", "video", "tensorflow", "keras"]
 dependencies = [
-    "tensorflow>=2.15.0",
-    "keras>=2.15.0",
-    "numpy>=1.25.1"
+    "tensorflow>=2.12.0",
+    "numpy>=1.23.0"
 ]
 authors = [
     {name = "Viktor Fairuschin", email = "folio.peptisch-4q@icloud.com"},

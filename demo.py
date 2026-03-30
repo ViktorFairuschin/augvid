@@ -19,7 +19,8 @@ from augvid import (
     RandomVideoSaturation,
     RandomHorizontalVideoFlip,
     RandomVerticalVideoFlip,
-    RandomGrayscale, RandomBlur,
+    RandomGrayscale,
+    RandomBlur,
 )
 
 
