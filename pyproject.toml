@@ -29,6 +29,9 @@ dev = [
     "eva-decord; platform_system == 'Darwin'"
 ]
 
+[tool.setuptools.packages.find]
+include = ["augvid*"]
+
 [tool.setuptools.dynamic]
 version = {attr = "augvid.__version__"}
 readme = {file = "README.md", content-type = "text/markdown"}
