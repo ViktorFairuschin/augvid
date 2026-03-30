@@ -16,11 +16,11 @@ pip install augvid
 The augmentation layers can be added during the model construction:
 
 ```python
-import keras
+import tensorflow as tf
 from augvid import RandomVideoBrightness, RandomHorizontalVideoFlip
 
 
-model = keras.Sequential([
+model = tf.keras.Sequential([
     RandomVideoBrightness(max_delta=0.1),
     RandomHorizontalVideoFlip(),
     # add more layers here
