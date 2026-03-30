@@ -1,4 +1,4 @@
-name: Upload Python Package to PyPI when a Release is Created
+name: Upload to PyPI
 
 on:
   release:
@@ -16,13 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.9"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel
+          pip install build setuptools wheel
       - name: Build package
         run: |
           python -m build
