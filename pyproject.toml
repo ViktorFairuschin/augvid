@@ -22,6 +22,7 @@ Repository = "https://github.com/ViktorFairuschin/augvid"
 
 [project.optional-dependencies]
 dev = [
+    "pytest",
     "opencv-python",
     "matplotlib",
     "decord; platform_system != 'Darwin'",
